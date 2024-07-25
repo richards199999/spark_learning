@@ -13,7 +13,7 @@ from train_model import transform_input_raw
 def gen_submit(modelpath, test_x, submit_file="submit.xlsx"):
     model: LGBMRegressor = load_model(modelpath)
 
-    df = transform_input_raw(pd.read_excel(test_x), "cat_encoder.dill")
+    df = transform_input_raw(pd.read_csv(test_x), "cat_encoder.dill")
 
     with timeit("predict on test"):
         pred = model.predict(df[X])
@@ -29,4 +29,4 @@ if __name__ == '__main__':
 
     config_logging()
 
-    gen_submit("lgb.dill", "../../data/test_X.xlsx")
+    gen_submit("lgb.dill", "../../data/2023_test_X.csv")

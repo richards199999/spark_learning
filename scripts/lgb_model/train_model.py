@@ -49,9 +49,20 @@ def transform_input_raw(dataset: pd.DataFrame, encoder: (str, CatEncoder), with_
 
 def train_pheat_demo():
     logging.info("loading training data")
-    dataset = pd.read_excel("../../data/train.xlsx")
 
-    dataset = transform_input_raw(dataset, "cat_encoder.dill", update_encoder=True)
+    original_dataset = pd.read_excel("../../data/train.xlsx")
+    logging.info(f"original dataset loaded: {len(original_dataset)} rows")
+
+    additional_dataset = pd.read_excel("../../data/additional_train.xlsx")
+    logging.info(f"additional dataset loaded: {len(additional_dataset)} rows")
+
+    new_dataset = pd.read_csv("../../data/2023_partial_train.csv")
+    logging.info(f"new dataset loaded: {len(new_dataset)} rows")
+
+    dataset = pd.concat([original_dataset, additional_dataset, new_dataset], ignore_index=True)
+    logging.info(f"dataset combined: {len(dataset)} rows")
+
+    dataset = transform_input_raw(dataset, "cat_encoder.dil", update_encoder=True)
 
     main_dataset = dataset[~dataset["wishlist_rank"].isna()]
     supplement_dataset = dataset[dataset["wishlist_rank"].isna()]
@@ -77,8 +88,10 @@ def train_pheat_demo():
 
     model = LGBMRegressor(
         objective='regression',
-        learning_rate=0.001,
-        n_estimators=300,
+        learning_rate=0.0006,
+        n_estimators=1550,
+        max_depth=8,
+        num_leaves=40,
         verbosity=2,
         random_state=42,
     )
@@ -102,5 +115,4 @@ if __name__ == '__main__':
     from spark_learning.utils import config_logging
 
     config_logging()
-
     train_pheat_demo()
